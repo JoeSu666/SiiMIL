@@ -19,8 +19,10 @@ import utils
 import mymodel.resnet_custom as resnet
 
 parser = argparse.ArgumentParser(description='outliers data preprocessing')
-parser.add_argument('--save', default='data/feats/cam16res2', type=str, help='Saving directory')
-parser.add_argument('--pts', default='data/pts/cam16l1p224s224/', type=str, help='Data directory')
+parser.add_argument('--slidedir', default='', type=str, help='Cam16 save dir. E.g. ./data/CAM16')
+parser.add_argument('--label', default='./data/reference.csv', type=str, help='Cam16 label csv file')
+parser.add_argument('--save', default='./data/feats/cam16res', type=str, help='Saving directory')
+parser.add_argument('--pts', default='./data/pts/cam16l1p224s224/', type=str, help='Data directory')
 parser.add_argument('--arch', default='resnet50_baseline', type=str, help='model')
 # parser.add_argument('--pretrain', default='runs/cam16Pn_IN/checkpoint_0019.pth.tar', type=str, help='path to pretrained model')
 
@@ -38,7 +40,7 @@ if not os.path.exists(args.save):
     os.mkdir(join(args.save, 'test', 'normal'))
     os.mkdir(join(args.save, 'test', 'tumor'))
 
-labeldf = pd.read_csv('./reference.csv', index_col=0, header=None)
+labeldf = pd.read_csv(args.label, index_col=0, header=None)
 
 def main(args=args):
     namelist = sorted(glob.glob(args.pts+'*.npy'))
@@ -55,9 +57,9 @@ def main(args=args):
             pts = np.load(name)
             print('{} patches'.format(pts.shape[0]))
             if train == 'train':
-                slidename = join('/isilon/datalake/cialab/original/cialab/image_database/d00142', train+'ing', label, pid+'.tif')
+                slidename = join(args.slidedir, train+'ing', label, pid+'.tif')
             elif train == 'test':
-                slidename = join('/isilon/datalake/cialab/original/cialab/image_database/d00142', train+'ing', 'images', pid+'.tif')
+                slidename = join(args.slidedir, train+'ing', 'images', pid+'.tif')
 
             with openslide.OpenSlide(slidename) as fp:
                 dataloader = load_dataset(fp, pts)

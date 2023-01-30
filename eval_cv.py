@@ -40,15 +40,33 @@ parser.add_argument('-b', '--batch_size', default=1, type=int,
                     help='batch size')            
 parser.add_argument('--inputd', default=1024, type=int,
                     help='input dim')                                      
-parser.add_argument('--code', default='test', type=str,
+parser.add_argument('--code', default='siimil', type=str,
                     help='exp code')                        
 parser.add_argument('-t', '--threshold', default=0.5, type=float,
                     help='accuracy threshold') 
 parser.add_argument('--pretrained', default='model_best.pth.tar', type=str, 
-                    help='pretrained model for validate')    
+                    help='pretrained model for validate')   
+parser.add_argument('--seed', default=7, type=int, 
+                    help='random seed')  
+parser.add_argument('--folds', default=1, type=int, 
+                    help='number of cv folds')   
                                                                                         
-parser.add_argument('-r', default=None, type=float, help='rate of selected query patches')
-parser.add_argument('--keys', default='', type=str, help='rate of selected query patches')
+parser.add_argument('-r', default=0.3, type=float, help='rate of selected query patches')
+parser.add_argument('--keys', default='sm_sort.npy', type=str, help='rate of selected query patches')
+
+device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+def seed_torch(seed=7):
+    import random
+    random.seed(seed)
+    # os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if device.type == 'cuda':
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed) # if you are using multi-GPU.
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
 
 def run(args):
 
@@ -117,14 +135,14 @@ def validate(val_loader, model, criterion, threshold, test):
 if __name__ == '__main__':
     args = parser.parse_args()
     save_dir = './runs/slidelevel/'+args.code   
-
+    seed_torch(args.seed)
     val_aucs = []
     aucs, accs, precisions, recalls, f1s = [], [], [], [], []
     results = {}
     testnamelist = glob.glob(join('./data/feats/cam16res', 'test', '*', '*.npy'))
     testnamelist = [name.split('/')[-1].split('.')[0] for name in testnamelist]
 
-    for i in range(42, 47):       
+    for i in range(42, 42+args.folds):       
         args.split = i       
         args.save = os.path.join(save_dir, str(args.split))                  
         test_metrics, val_metrics = run(args)
@@ -147,9 +165,5 @@ if __name__ == '__main__':
     print('**Testing AUC {:.3f} +- {:.3f}, ACC {:.3f} +- {:.3f}, PRECISION {:.3f} +- {:.3f}, RECALL {:.3f} +- {:.3f}, F1 {:.3F} +- {:.3F}'
         .format(np.mean(aucs), np.std(aucs), np.mean(accs), np.std(accs), np.mean(precisions), np.std(precisions), 
         np.mean(recalls), np.std(recalls), np.mean(f1s), np.std(f1s)))
-
-    bestidx = np.argmax(val_aucs)
-    print('***Best testing AUC {:.3f}, ACC {:.3f}, PRECISION {:.3f}, RECALL {:.3f}, F1 {:.3f}'
-        .format(aucs[bestidx], accs[bestidx], precisions[bestidx], recalls[bestidx], f1s[bestidx]))
 
     print('Saved in ', join(save_dir, 'results.csv'))

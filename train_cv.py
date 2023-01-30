@@ -26,34 +26,36 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
 
 parser = argparse.ArgumentParser(description='cam16')
-parser.add_argument('--model', default='', type=str,
-                    help='path to the model')
 parser.add_argument('--arch', default='attmil', type=str,
                     help='architecture')
-parser.add_argument('--data', default='cam16_curcos', type=str,
+parser.add_argument('--data', default='cam16_sii', type=str,
                     help='dataset')                    
 parser.add_argument('--split', default=42, type=int,
-                    help='split random seed')
+                    help='train/val split random seed')
 parser.add_argument('-b', '--batch_size', default=1, type=int,
                     help='batch size')          
 parser.add_argument('--epochs', default=100, type=int,
                     help='number of epochs')   
 parser.add_argument('--inputd', default=1024, type=int,
                     help='input dim')                                      
-parser.add_argument('--code', default='test', type=str,
+parser.add_argument('--code', default='siimil', type=str,
                     help='exp code')                        
 parser.add_argument('-t', '--threshold', default=0.5, type=float,
                     help='accuracy threshold') 
 parser.add_argument('--lr', default=2e-4, type=float, 
                     help='init learning rate')   
 parser.add_argument('--reg', type=float, default=1e-5,
-                    help='weight decay (default: 1e-5)')
+                    help='weight decay')
 parser.add_argument('--freq', default=100, type=int, 
                     help='training log display frequency')                              
 parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
                     help='evaluate model on validation set')  
 parser.add_argument('--pretrained', default='', type=str, 
                     help='pretrained model for validate')    
+parser.add_argument('--seed', default=42, type=int, 
+                    help='random seed')  
+parser.add_argument('--folds', default=1, type=int, 
+                    help='number of cv folds')                  
 
 parser.add_argument('--patience', default=10, type=int, 
                     help='early stopping patience') 
@@ -63,12 +65,23 @@ parser.add_argument('--monitor', default='loss', type=str,
                     help='value to monitor for early stopping')                                                                                             
 
 parser.add_argument('-r', default=0.3, type=float, help='rate of selected query patches')
-parser.add_argument('--keys', default='', type=str, help='rate of selected query patches')
-parser.add_argument('--sd', default=None, type=int, help='use sepctrum decoupling')
+parser.add_argument('--keys', default='sm_sort.npy', type=str, help='rate of selected query patches')
+
+device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+def seed_torch(seed):
+    import random
+    random.seed(seed)
+    # os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if device.type == 'cuda':
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed) # if you are using multi-GPU.
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
 
 def run(args):
-    
-
     net = getattr(model, args.arch)(inputd=args.inputd)
 
     # BCE loss, Adam opt
@@ -156,8 +169,6 @@ def train(train_loader, model, criterion,  optimizer, epoch, args, writer):
             targets = torch.cat((targets, target), 0)
 
         loss = criterion(output, target)
-        if args.sd:
-            loss += (args.sd/2) * torch.norm(output).pow(2)
         
         losses.update(loss.item(), images.size(0))
 
@@ -220,14 +231,12 @@ def validate(val_loader, model, epoch, criterion, args, writer, val='val'):
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    if args.sd:
-        print('spectrum decoupling')
-        
+    seed_torch(args.seed)
     save_dir = './runs/slidelevel/'+args.code
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)    
 
-    for i in range(42, 47):       
+    for i in range(42, 42+args.folds):       
         args.split = i       
         args.save = os.path.join(save_dir, str(args.split))                  
         run(args)

@@ -15,11 +15,11 @@ parser = argparse.ArgumentParser(description='save patch coordinates into npy. C
 parser.add_argument('-p', default=224, type=int, help='Patch size')
 parser.add_argument('-s', default=224, type=int, help='Stride')
 parser.add_argument('-l', default=1, type=int, help='Magnification level')
-parser.add_argument('--save', default='data', type=str, help='Saving directory')
-parser.add_argument('--data', default='/isilon/datalake/cialab/original/cialab/image_database/d00142/testing/images/*.tif', 
-                    type=str, help='Data directory')
-parser.add_argument('--mask', default='../data/mask_level5', 
-                    type=str, help='mask directory')  
+parser.add_argument('--save', default='./data', type=str, help='Saving directory')
+parser.add_argument('--slidedir', default='', 
+                    type=str, help='CAM16 WSI Data directory. E.g. ./cam16/*/*/*.tif')
+parser.add_argument('--mask', default='./data/mask_level5', 
+                    type=str, help='binary masks of foreground')  
 parser.add_argument('--type', default=None, 
                     type=str, help='None (default, tissue region), normal or tumor')                     
 parser.add_argument('--code', default='cam16', type=str, help='code')                                      
@@ -28,7 +28,7 @@ parser.add_argument('--code', default='cam16', type=str, help='code')
 args = parser.parse_args()
 
 def main(args=args):
-    namelist = sorted(glob.glob(args.data))
+    namelist = sorted(glob.glob(args.slidedir))
 
     save_dir = join(args.save, 'pts', args.code+'l'+str(args.l)+'p'+str(args.p)+'s'+str(args.s))
     if not os.path.exists(save_dir):
