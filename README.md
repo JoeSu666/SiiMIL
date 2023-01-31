@@ -5,9 +5,12 @@ This is the offical implementation of our paper: Attention2Minority: A salient i
 Camelyon16 dataset, torch, torchvision, tensorboard, openslide, PIL, pandas, numpy, scikit-learn, tqdm, opencv
 
 ## Extract foreground patches coordinates
-Extract from CAM16 raw slides:
+Extract the coordinates of the top-left corner of each patch from CAM16 raw slides:
+
 ```$ python extraction.py --slidedir <>```
+
 Or use your own:
+
 ```
 data
     ├── pts
@@ -18,9 +21,12 @@ data
 ```
 
 ## Patch encoding using Resnet50
-Encoding from CAM16 raw slides:
+Encoding patches from CAM16 raw slides using Resnet50(pretrained on ImageNet, and truncated at the third block):
+
 ```$ python encoding_pts.py --slidedir <>```
+
 Or use your own:
+
 ```
 data
    ├── feats
@@ -41,10 +47,10 @@ data
 
 ## Representation learning from negative instances
 Learn representative negative instances (i.e., Key set)
+
 ```$ python keyset_lrn.py -t 100```
 
 Or [download](https://drive.google.com/file/d/1jfNuKoPyWypryKbcWOKzODoIougw1byy/view?usp=share_link) the learned key set.
-
 
 ## Salient instance inference
 ```$ python sii.py -k 150```
@@ -52,7 +58,7 @@ Or [download](https://drive.google.com/file/d/1jfNuKoPyWypryKbcWOKzODoIougw1byy/
 ## Train
 ```$ python train_cv.py -r 0.3 --keys sm_sort.npy --code cam16res_siimil --data cam16_sii```
 
-[Download](https://drive.google.com/file/d/1SqsOrj2vO0MEQycSKm_sh3Y32FnDhGbt/view?usp=share_link) pretrained model.
+[Download](https://drive.google.com/file/d/1SqsOrj2vO0MEQycSKm_sh3Y32FnDhGbt/view?usp=share_link) the pretrained models.
 
 ## Evaluation
 ```$ python eval_cv.py -r 0.3 --keys sm_sort.npy --code cam16res_siimil --data cam16_sii```
