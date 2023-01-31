@@ -9,7 +9,7 @@ Extract from CAM16 raw slides:
 ```$ python extraction.py --slidedir <>```
 Or use your own:
 ```
-data/
+data
     ├── pts
           ├── cam16l1p224s224
                             ├── slide_1.npy
@@ -22,17 +22,17 @@ Encoding from CAM16 raw slides:
 ```$ python encoding_pts.py --slidedir <>```
 Or use your own:
 ```
-data/
-    ├── feats
-          ├── cam16res
-                     ├── train
-                             ├── normal
-                                      ├── slide_1.npy
-                                      ├── slide_2.npy
+data
+   ├── feats
+           ├── cam16res
+                      ├── train
+                              ├── normal
+                                       ├── slide_1.npy
+                                       ├── slide_2.npy
+                                       └── ...
+                              └── tumor
                                       └── ...
-                             └── tumor
-                                     └── ...
-                     └── test
+                      └── test
                              ├── normal
                                       └── ...
                              └── tumor
