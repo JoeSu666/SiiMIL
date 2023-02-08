@@ -37,7 +37,7 @@ def run(args):
     namelist = sorted(glob.glob(join(args.featdir, '*.npy')))
     keyset = np.empty((0, 1024))
 
-    for name in namelist[:5]:
+    for name in namelist:
         print(name)
         feats = np.load(name).T
         res = extractTopKColumns(feats)
