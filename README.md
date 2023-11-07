@@ -1,5 +1,5 @@
 # Salient instance inference-based Multiple Instance Learning (SiiMIL)
-This is the offical implementation of our paper: Attention2Minority: A salient instance inference-based multiple instance learning for classifying small lesions in breast cancer whole slide images. [Paper](https://arxiv.org/abs/2301.07700)
+This is the offical implementation of our paper: Attention2Minority: A salient instance inference-based multiple instance learning for classifying small lesions in breast cancer whole slide images. [Paper](https://doi.org/10.1016/j.compbiomed.2023.107607)
 
 ## Requirements
 Camelyon16 dataset, torch, torchvision, tensorboard, openslide, PIL, pandas, numpy, scikit-learn, tqdm, opencv
