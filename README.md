@@ -56,10 +56,11 @@ Or [download](https://drive.google.com/file/d/1jfNuKoPyWypryKbcWOKzODoIougw1byy/
 ```$ python sii.py -k 150```
 
 ## Train attention-based MIL
-```$ python train_cv.py -r 0.3 --keys sm_sort.npy --code cam16res_siimil --data cam16_sii``` \
-Sii selected instances can also boost performance of other MIL models. It currently works better on non-contextual models.
+```$ python train_cv.py -r 0.3 --keys sm_sort.npy --code cam16res_siimil --data cam16_sii``` 
 
 [Download](https://drive.google.com/file/d/1SqsOrj2vO0MEQycSKm_sh3Y32FnDhGbt/view?usp=share_link) the pretrained models.
+
+Sii selected instances can also boost performance of other MIL models. It currently works better on non-contextual models.
 
 ## Evaluation
 ```$ python eval_cv.py -r 0.3 --keys sm_sort.npy --code cam16res_siimil --data cam16_sii```
